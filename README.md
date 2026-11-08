@@ -1,60 +1,82 @@
-# AI Customer Support Automation
+# AI-Powered Customer Support Automation
 
-An AI-powered customer support workflow built with n8n to automate customer enquiry handling, generate relevant responses, and streamline support operations.
+An AI-powered customer support automation system built with **n8n, Google Gemini, Google Sheets, and Gmail**. It processes incoming customer enquiries, classifies them by intent, retrieves relevant information, generates responses, and records interactions automatically.
 
-## Project Overview
+The project also includes a dedicated error-handling workflow to manage execution failures.
 
-This system uses AI and workflow automation to process customer enquiries, understand incoming requests, and generate appropriate responses.
+## Overview
 
-It is designed to reduce repetitive support tasks, improve response times, and provide a structured process for handling customer interactions.
+The system receives customer messages through an n8n webhook and uses Google Gemini to classify each enquiry into one of four categories:
+
+- **FAQ:** General questions answered using information retrieved from a Google Sheets knowledge base.
+- **ORDER:** Order-related enquiries handled by retrieving order information from Google Sheets.
+- **COMPLAINT:** Customer complaints acknowledged with an AI-generated response.
+- **HUMAN:** Requests requiring human assistance receive a handoff message.
+
+After processing, the system records the interaction and sends the generated response through Gmail.
 
 ## Workflow Architecture
 
-1. **Request Reception:** Receives incoming customer enquiries through a webhook or configured trigger.
-2. **Input Processing:** Extracts and prepares customer information for processing.
-3. **AI Processing:** Uses an AI model to interpret enquiries and generate relevant responses.
-4. **Response Handling:** Processes the generated response and prepares it for delivery.
-5. **Customer Communication:** Sends automated responses through the configured communication channel.
-6. **Error Handling:** Manages workflow failures and unexpected execution issues.
-
-## Technologies Used
-
-- n8n
-- Artificial Intelligence / Large Language Models
-- Webhooks
-- JavaScript
-- JSON
-- API Integration
-- Workflow Automation
+1. **Webhook Reception:** Receives incoming customer enquiries through an HTTP POST request.
+2. **AI Classification:** Google Gemini analyses the message and assigns it to FAQ, ORDER, COMPLAINT, or HUMAN.
+3. **Intent Routing:** An n8n Switch node directs the enquiry to the appropriate processing branch.
+4. **Information Retrieval:** Google Sheets provides FAQ information or order details where required.
+5. **Response Generation:** Google Gemini generates a response based on the relevant information and branch-specific instructions.
+6. **Customer Communication:** Gmail handles response delivery.
+7. **Interaction Logging:** Google Sheets stores customer details, enquiry categories, generated responses, and timestamps.
+8. **Error Handling:** A dedicated error-handler workflow manages failed executions separately from the main processing workflow.
 
 ## Key Features
 
 - Automated customer enquiry processing.
-- AI-powered response generation.
-- Reduced manual support workload.
-- Automated customer communication.
-- Structured workflow execution.
-- Error handling and failure management.
+- AI-powered intent classification using Google Gemini.
+- Four distinct customer support routes.
+- FAQ retrieval from Google Sheets.
+- Order information lookup.
+- AI-generated complaint acknowledgements.
+- Human-support handoff messaging.
+- Automated email communication.
+- Customer interaction logging.
+- Dedicated error-handling workflow.
 
-## Repository Contents
+## Technologies Used
 
-- Exported n8n workflow JSON file(s).
-- Workflow screenshots.
+- **n8n:** Workflow automation and orchestration.
+- **Google Gemini API:** Intent classification and response generation.
+- **Google Sheets:** FAQ knowledge base, order records, and interaction logs.
+- **Gmail:** Email communication.
+- **JavaScript:** Data processing and AI response parsing.
+- **REST API / HTTP:** API communication.
+- **JSON:** Structured data exchange and workflow configuration.
 
-## Setup
+## Repository Structure
 
-1. Import the exported workflow JSON file into your n8n instance.
-2. Configure the required AI model credentials.
-3. Configure communication channels and API integrations.
-4. Set up the required webhook or trigger.
-5. Activate the workflow.
-6. Test using sample customer enquiries.
+- `AI Powered Customer Support.json` - Main customer support automation workflow.
+- `Error Handler.json` - Dedicated error-handling workflow.
+- `screenshots/` - Workflow screenshots and implementation visuals.
 
-**Note:** Credentials, API keys, and environment-specific configurations are not included in the exported workflow.
+*Adjust the error-handler filename above if your exported file uses a different name.*
+
+## Setup and Configuration
+
+1. Install or access an n8n instance.
+2. Import the main customer support workflow JSON.
+3. Import the error-handler workflow JSON.
+4. Configure Google Gemini API credentials.
+5. Connect your Google Sheets account and configure the required FAQ, order, and interaction-log sheets.
+6. Configure Gmail credentials and the appropriate email recipient settings.
+7. Update the workflow's configuration and connect the error handler through n8n's error-workflow settings where applicable.
+8. Activate the workflows and test the webhook using Postman or another HTTP client.
+
+**Note:** API keys and account credentials are not included in the exported workflow. Users must configure their own credentials before running the system.
 
 ## Project Purpose
 
-Built to demonstrate AI integration, workflow automation, API connectivity, automated communication, and practical customer support process automation.
+This project demonstrates how AI and workflow automation can be combined to build a structured customer support system.
+
+It showcases practical experience with API integration, AI-powered decision-making, conditional workflow routing, data retrieval, automated communication, and error handling.
+
+The system is designed to reduce repetitive customer support tasks while maintaining structured records of customer interactions.
 
 <img width="991" height="380" alt="Screenshot 1" src="https://github.com/user-attachments/assets/b0536923-167c-4e13-8181-5888333dc676" />
 <img width="967" height="342" alt="Screenshot 2" src="https://github.com/user-attachments/assets/20330ef7-268f-47ad-a475-23b8a329d14d" />
