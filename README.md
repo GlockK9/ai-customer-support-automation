@@ -55,3 +55,7 @@ It is designed to reduce repetitive support tasks, improve response times, and p
 ## Project Purpose
 
 Built to demonstrate AI integration, workflow automation, API connectivity, automated communication, and practical customer support process automation.
+
+<img width="991" height="380" alt="Screenshot 1" src="https://github.com/user-attachments/assets/b0536923-167c-4e13-8181-5888333dc676" />
+<img width="967" height="342" alt="Screenshot 2" src="https://github.com/user-attachments/assets/20330ef7-268f-47ad-a475-23b8a329d14d" />
+<img width="585" height="728" alt="Screenshot 3" src="https://github.com/user-attachments/assets/da887654-d019-4b30-b025-cb35210bf4d4" />
