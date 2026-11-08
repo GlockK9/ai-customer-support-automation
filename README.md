@@ -52,10 +52,9 @@ After processing, the system records the interaction and sends the generated res
 ## Repository Structure
 
 - `AI Powered Customer Support.json` - Main customer support automation workflow.
-- `Error Handler.json` - Dedicated error-handling workflow.
+- `Error handler.json` - Dedicated error-handling workflow.
 - `screenshots/` - Workflow screenshots and implementation visuals.
 
-*Adjust the error-handler filename above if your exported file uses a different name.*
 
 ## Setup and Configuration
 
