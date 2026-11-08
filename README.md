@@ -11,7 +11,7 @@ The system receives customer messages through an n8n webhook and uses Google Gem
 - **FAQ:** General questions answered using information retrieved from a Google Sheets knowledge base.
 - **ORDER:** Order-related enquiries handled by retrieving order information from Google Sheets.
 - **COMPLAINT:** Customer complaints acknowledged with an AI-generated response.
-- **HUMAN:** Requests requiring human assistance receive a handoff message.
+- **HUMAN:** Generates a human-support handoff message when an enquiry requires assistance from a human support representative..
 
 After processing, the system records the interaction and sends the generated response through Gmail.
 
