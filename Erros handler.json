@@ -1,0 +1,70 @@
+{
+  "name": "Erros handler",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "bd5511ae-44a8-436c-8978-b9ccda44620b",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "sendTo": "biraoghoroju@gmail.com",
+        "subject": "RESPONSE ERROR",
+        "emailType": "text",
+        "message": "Below",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "8f43f8c5-704a-4a0f-8500-ce21b395adec",
+      "name": "Send a message",
+      "webhookId": "cb202108-64cd-46c2-98e9-3d89ec047734",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZHSNQwoAFzdpzFTG",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f46ce046-8247-4b2c-bfc1-3c7280a41d3e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9a28dede2f1a3ac6e519efc3120cdbc0110c71019a493eebd98b67d6eacecfea"
+  },
+  "nodeGroups": [],
+  "id": "W4LjpL7UqBOmzuoy",
+  "tags": []
+}

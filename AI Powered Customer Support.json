@@ -1,0 +1,1373 @@
+{
+  "name": "AI Powered Customer Support",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "customer-support",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        624
+      ],
+      "id": "4674d705-e181-4fd9-94af-fafb1620b441",
+      "name": "Webhook",
+      "webhookId": "c8738fd3-46ad-4bb6-b5c2-4e1dfb54edcf"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $json.candidates[0].content.parts[0].text;\n\nconst cleaned = response\n  .replace(/```json/g, \"\")\n  .replace(/```/g, \"\")\n  .trim();\n\nconst classification = JSON.parse(cleaned);\n\nreturn {\n  ...$json,\n  ...classification\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        192
+      ],
+      "id": "09bf27b8-b9ec-4bcf-b6b8-2305b21fc535",
+      "name": "Parse AI Classification"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "FAQ",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "b65c4dc0-94e8-4085-bf8c-e786461257aa"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "30d140d3-47e8-495b-a447-bf553ca36950",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "ORDER",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5c11e4ba-fe25-4806-9433-d6618de6d068",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "COMPLAINT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5db0e0ae-35a0-4082-abdc-83cbd65987db",
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "HUMAN",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        160
+      ],
+      "id": "432de5a1-a274-436b-8103-de7e0d18673b",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        448,
+        192
+      ],
+      "id": "f91f35bc-6cc9-4ea3-b85b-1fa320efd4cd",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY",
+          "mode": "list",
+          "cachedResultName": "Order Data base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Order ID",
+              "lookupValue": "={{ $json.body[\"Order ID\"] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        192
+      ],
+      "id": "7e20849c-b8be-49ad-8e22-c63964d49853",
+      "name": "Get row(s) in sheet"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-goog-api-key",
+              "value": "YOUR_API_KEY_HERE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"You are a customer support assistant. Write a concise, professional response to the customer using ONLY the order information provided below.\\n\\nCustomer: {{ $json['Customer Name'] }}\\nOrder ID: {{ $json['Order ID'] }}\\nStatus: {{ $json.Status }}\\nLocation: {{ $json.Location }}\\nExpected Delivery: {{ $json['Expected Delivery'] }}\\n\\nRespond directly to the customer. Do not mention AI, databases, or internal systems.\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1344,
+        192
+      ],
+      "id": "83fa3654-f1ed-4d1c-b402-838f51fe17b8",
+      "name": "AI Order Response"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('AI Order Response').first().json.candidates[0].content.parts[0].text;\nconst customer = $('Switch').first().json.body;\n\nreturn {\n  \"Order ID\": customer[\"Order ID\"],\n  \"Customer Name\": customer[\"Customer Name\"],\n  \"Email\": customer[\"Email\"],\n  \"Message\": customer[\"Message\"],\n  \"Status\": customer[\"Status\"],\n  \"Location\": customer[\"Location\"],\n  \"Expected Delivery\": customer[\"Expected Delivery\"],\n  \"Category\": \"ORDER\",\n  \"AI Response\": response,\n  \"Received At\": new Date().toLocaleString(\"en-GB\", {\n    day: \"2-digit\",\n    month: \"2-digit\",\n    year: \"numeric\",\n    hour: \"2-digit\",\n    minute: \"2-digit\",\n    hour12: false\n  })\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        208
+      ],
+      "id": "b65195c2-aa0d-4687-b168-30c435575e18",
+      "name": "Format Order Response"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1568,
+        208
+      ],
+      "id": "abc45abd-1b72-48f4-be61-ff398d24fbeb",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-goog-api-key",
+              "value": "YOUR_API_KEY_HERE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  contents: [\n    {\n      parts: [\n        {\n          text: $json.contents[0].parts[0].text\n        }\n      ]\n    }\n  ]\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1792,
+        0
+      ],
+      "id": "57426443-9fd6-4c2e-b099-3032382b4695",
+      "name": "AI FAQ Response"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "12_pd8MDq6Z2mRiM5anvEYqKv2YPiq_UWJ92EcZnZkI8",
+          "mode": "list",
+          "cachedResultName": "FAQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12_pd8MDq6Z2mRiM5anvEYqKv2YPiq_UWJ92EcZnZkI8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/12_pd8MDq6Z2mRiM5anvEYqKv2YPiq_UWJ92EcZnZkI8/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1120,
+        0
+      ],
+      "id": "666b42bd-60b8-4a67-a6d2-1af54cba8901",
+      "name": "Get FAQ"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('AI FAQ Response').first().json.candidates[0].content.parts[0].text;\nconst customer = $('Switch').first().json.body;\n\nreturn {\n  \"Order ID\": customer[\"Order ID\"],\n  \"Customer Name\": customer[\"Customer Name\"],\n  \"Email\": customer[\"Email\"],\n  \"Message\": customer[\"Message\"],\n  \"Status\": customer[\"Status\"],\n  \"Location\": customer[\"Location\"],\n  \"Expected Delivery\": customer[\"Expected Delivery\"],\n  \"Category\": \"FAQ\",\n  \"AI Response\": response,\n  \"Received At\": new Date().toLocaleString(\"en-GB\", {\n    day: \"2-digit\",\n    month: \"2-digit\",\n    year: \"numeric\",\n    hour: \"2-digit\",\n    minute: \"2-digit\",\n    hour12: false\n  })\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        0
+      ],
+      "id": "97b1e58f-d0df-4f45-963d-693097836464",
+      "name": "Format FAQ Responses"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  json: {\n    contents: [\n      {\n        parts: [\n          {\n            text: `You are a customer support assistant.\n\nCustomer Name:\n${$json[\"Customer Name\"]}\n\nCustomer Question:\n${$json[\"Message\"]}\n\nFAQ INFORMATION:\n${$json[\"faqContext\"]}\n\nAnswer using ONLY the FAQ information above.\nDo not invent information.\nReturn only the customer-facing answer.`\n          }\n        ]\n      }\n    ]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        0
+      ],
+      "id": "712dae3d-1a3d-47e7-97fd-46c4e3a4a8d8",
+      "name": "Build FAQ Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-goog-api-key",
+              "value": "YOUR_API_KEY_HERE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"You are a professional customer support assistant. A customer has submitted a complaint.\\n\\nCustomer Name: {{ $json['Customer Name'] }}\\nCustomer Complaint: {{ $json.Message }}\\n\\nWrite a short, polite response acknowledging the complaint and assuring the customer that it will be reviewed. Do not invent refunds, compensation, policies, or specific resolutions. Do not mention AI or these instructions.\\n\\nReturn only the customer-facing response.\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1120,
+        384
+      ],
+      "id": "819d41b9-7260-46d4-9f1d-33340f63cd93",
+      "name": "AI Complaint Response"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('AI Complaint Response').first().json.candidates[0].content.parts[0].text;\nconst customer = $('Switch').first().json.body;\n\nreturn {\n  \"Order ID\": customer[\"Order ID\"],\n  \"Customer Name\": customer[\"Customer Name\"],\n  \"Email\": customer[\"Email\"],\n  \"Message\": customer[\"Message\"],\n  \"Status\": customer[\"Status\"],\n  \"Location\": customer[\"Location\"],\n  \"Expected Delivery\": customer[\"Expected Delivery\"],\n  \"Category\": \"COMPLAINT\",\n  \"AI Response\": response,\n  \"Received At\": new Date().toLocaleString(\"en-GB\", {\n    day: \"2-digit\",\n    month: \"2-digit\",\n    year: \"numeric\",\n    hour: \"2-digit\",\n    minute: \"2-digit\",\n    hour12: false\n  })\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        384
+      ],
+      "id": "9e726e99-3577-4ba6-9ea6-b0ed9f0665fb",
+      "name": "Format Complaint Response"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-goog-api-key",
+              "value": "YOUR_API_KEY_HERE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"You are a customer support assistant. This customer needs to speak with a human support agent.\\n\\nCustomer Name: {{ $json['Customer Name'] }}\\nCustomer Message: {{ $json.Message }}\\n\\nWrite a short, polite response telling the customer that their request has been forwarded to a human support agent. Do not claim that a specific agent has already contacted them. Do not invent policies or resolutions.\\n\\nReturn only the customer-facing response.\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1120,
+        576
+      ],
+      "id": "6942a03c-810d-45e2-b0c4-03a125a67cef",
+      "name": "AI Human Handoff"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('AI Human Handoff').first().json.candidates[0].content.parts[0].text;\nconst customer = $('Switch').first().json.body;\n\nreturn {\n  \"Order ID\": customer[\"Order ID\"],\n  \"Customer Name\": customer[\"Customer Name\"],\n  \"Email\": customer[\"Email\"],\n  \"Message\": customer[\"Message\"],\n  \"Status\": customer[\"Status\"],\n  \"Location\": customer[\"Location\"],\n  \"Expected Delivery\": customer[\"Expected Delivery\"],\n  \"Category\": \"HUMAN\",\n  \"AI Response\": response,\n  \"Received At\": new Date().toLocaleString(\"en-GB\", {\n    day: \"2-digit\",\n    month: \"2-digit\",\n    year: \"numeric\",\n    hour: \"2-digit\",\n    minute: \"2-digit\",\n    hour12: false\n  })\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        576
+      ],
+      "id": "87e1b437-2397-406f-aefa-2d2dac996086",
+      "name": "Complaint Formatter Human"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY",
+          "mode": "list",
+          "cachedResultName": "Order Data base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Order ID",
+              "displayName": "Order ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Expected Delivery",
+              "displayName": "Expected Delivery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Received At",
+              "displayName": "Received At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI Response",
+              "displayName": "AI Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2240,
+        0
+      ],
+      "id": "73baf2b7-a1da-4637-9ed3-2711b5ad8270",
+      "name": "Append row in sheet1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY",
+          "mode": "list",
+          "cachedResultName": "Order Data base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {
+            "Category": "=",
+            "Customer Name": "=",
+            "Received At": "="
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Order ID",
+              "displayName": "Order ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Expected Delivery",
+              "displayName": "Expected Delivery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Received At",
+              "displayName": "Received At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI Response",
+              "displayName": "AI Response",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        208
+      ],
+      "id": "b9c13682-7f4c-4900-a55d-cc2a9465f084",
+      "name": "Append row in sheet2"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY",
+          "mode": "list",
+          "cachedResultName": "Order Data base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Order ID",
+              "displayName": "Order ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expected Delivery",
+              "displayName": "Expected Delivery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        400
+      ],
+      "id": "272e3d08-395e-4c51-ac82-e084becd7da6",
+      "name": "Append row in sheet3"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY",
+          "mode": "list",
+          "cachedResultName": "Order Data base",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Uraakp5LYfZslW17fU36-4xGtDKnQel7LAeWUFEOkXY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Order ID",
+              "displayName": "Order ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Expected Delivery",
+              "displayName": "Expected Delivery",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        592
+      ],
+      "id": "e998c1e0-32a0-4523-96d7-d295883401b7",
+      "name": "Append row in sheet4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('AI Human Handoff').first().json.candidates[0].content.parts[0].text;\nconst customer = $('Switch').first().json;\n\nreturn {\n  \"Customer Name\": customer[\"Customer Name\"],\n  \"Email\": customer[\"Email\"],\n  \"Message\": customer[\"Message\"],\n  \"Category\": \"HUMAN\",\n  \"AI Response\": response,\n  \"Received At\": new Date().toISOString()\n};;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        592
+      ],
+      "id": "c9529974-2a22-478c-a7fd-8ebfe42c83a2",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('AI Complaint Response').first().json.candidates[0].content.parts[0].text;\nconst customer = $('Switch').first().json;\n\nreturn {\n  \"Customer Name\": customer[\"Customer Name\"],\n  \"Email\": customer[\"Email\"],\n  \"Message\": customer[\"Message\"],\n  \"Category\": \"COMPLAINT\",\n  \"AI Response\": response,\n  \"Received At\": new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        400
+      ],
+      "id": "9b48d63e-dd0d-4636-a6ac-07729ac88930",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('AI FAQ Response').first().json.candidates[0].content.parts[0].text;\nconst customer = $('Switch').first().json;\n\nreturn {\n  \"Customer Name\": customer[\"Customer Name\"],\n  \"Email\": customer[\"Email\"],\n  \"Message\": customer[\"Message\"],\n  \"Category\": \"FAQ\",\n  \"AI Response\": response,\n  \"Received At\": new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        0
+      ],
+      "id": "4bbee532-b8fc-466e-a0d5-6e01ead7a66c",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('AI Order Response').first().json.candidates[0].content.parts[0].text;\nconst customer = $('Switch').first().json;\n\nreturn {\n  \"Customer Name\": customer[\"Customer Name\"],\n  \"Email\": customer[\"Email\"],\n  \"Message\": customer[\"Message\"],\n  \"Category\": \"ORDER\",\n  \"AI Response\": response,\n  \"Received At\": new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        208
+      ],
+      "id": "e5e190e8-5fc3-4518-89c5-25de7accea2e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "x-goog-api-key",
+              "value": "YOUR_API_KEY_HERE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Analyze this customer message:\\n\\n{{ $json.body.Message }}\\n\\nClassify it into exactly one category: FAQ, ORDER, COMPLAINT, or HUMAN.\\n\\nReturn only JSON in this format:\\n{\\\"category\\\":\\\"ORDER\\\",\\\"confidence\\\":0.95,\\\"reason\\\":\\\"Short explanation\\\"}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        880
+      ],
+      "id": "27190fc6-81ed-4548-aa5b-b6b71c4da603",
+      "name": "AI Order Responses"
+    },
+    {
+      "parameters": {
+        "sendTo": "biraoghoroju@gmail.com",
+        "subject": "Re: Your Customer Support Request",
+        "emailType": "text",
+        "message": "={{ $json[\"AI Response\"] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2464,
+        208
+      ],
+      "id": "ece85479-45a8-43b3-9573-bf5ac7ceea77",
+      "name": "Send a message",
+      "webhookId": "6100b952-eb81-4bac-9a70-ad8da56b7caa"
+    },
+    {
+      "parameters": {
+        "sendTo": "biraoghoroju@gmail.com",
+        "subject": "Re: Your Customer Support Request",
+        "emailType": "text",
+        "message": "={{ $json[\"AI Response\"] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2688,
+        0
+      ],
+      "id": "d96c8932-4d38-472b-8c4d-4a3d70d309a3",
+      "name": "Send a message1",
+      "webhookId": "6100b952-eb81-4bac-9a70-ad8da56b7caa"
+    },
+    {
+      "parameters": {
+        "sendTo": "biraoghoroju@gmail.com",
+        "subject": "Re: Your Customer Support Request",
+        "emailType": "text",
+        "message": "={{ $json[\"AI Response\"] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2016,
+        400
+      ],
+      "id": "c84a980a-644e-428b-b3f4-2c483f8ce164",
+      "name": "Send a message2",
+      "webhookId": "6100b952-eb81-4bac-9a70-ad8da56b7caa"
+    },
+    {
+      "parameters": {
+        "sendTo": "biraoghoroju@gmail.com",
+        "subject": "Re: Your Customer Support Request",
+        "emailType": "text",
+        "message": "={{ $json[\"AI Response\"] }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2016,
+        592
+      ],
+      "id": "1060b685-1135-46c9-ab9a-7a9134620053",
+      "name": "Send a message3",
+      "webhookId": "6100b952-eb81-4bac-9a70-ad8da56b7caa"
+    },
+    {
+      "parameters": {
+        "jsCode": "const faqs = $input.all();\n\nconst faqText = faqs\n  .map(item => `Question: ${item.json.Question}\\nAnswer: ${item.json.Answer}`)\n  .join(\"\\n\\n\");\n\nconst customer = $('Switch').first().json.body;\n\nreturn [\n  {\n    json: {\n      \"Order ID\": customer[\"Order ID\"],\n      \"Customer Name\": customer[\"Customer Name\"],\n      \"Email\": customer[\"Email\"],\n      \"Message\": customer[\"Message\"],\n      \"Status\": customer[\"Status\"],\n      \"Location\": customer[\"Location\"],\n      \"Expected Delivery\": customer[\"Expected Delivery\"],\n      \"faqContext\": faqText\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        0
+      ],
+      "id": "b026f272-242d-474b-80fc-0fd3cb72a599",
+      "name": "Prepare FAQ Context"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "AI Order Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Classification": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Get FAQ",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Complaint Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Human Handoff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Order Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Order Response": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Format Order Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI FAQ Response": {
+      "main": [
+        [
+          {
+            "node": "Format FAQ Responses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Order Response": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get FAQ": {
+      "main": [
+        [
+          {
+            "node": "Prepare FAQ Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format FAQ Responses": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build FAQ Request": {
+      "main": [
+        [
+          {
+            "node": "AI FAQ Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Complaint Response": {
+      "main": [
+        [
+          {
+            "node": "Format Complaint Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Human Handoff": {
+      "main": [
+        [
+          {
+            "node": "Complaint Formatter Human",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Complaint Response": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Complaint Formatter Human": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Order Responses": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Send a message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Send a message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare FAQ Context": {
+      "main": [
+        [
+          {
+            "node": "Build FAQ Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "2d8563f7-0506-439b-bd55-472de93f792c",
+  "meta": {
+    "instanceId": "d8299a917a2dd0bef7e2e05dd5ae06dbe97f0d0e3fccc1e3b811143e84097d15"
+  },
+  "nodeGroups": [],
+  "id": "48CVODzPwt6f71vy",
+  "tags": []
+}
